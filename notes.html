@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>網頁筆記</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f2f4f8;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            justify-content: flex-end;   /* 按鈕靠右 */
+            align-items: center;         /* 垂直居中對齊 */
+            margin-bottom: 40px;         /* 與下面的內容保持間距 */
+        }
+
+        h1 {
+            text-align: center;
+            color: #0056b3;
+            margin-bottom: 40px;
+            font-weight: 600;
+            font-size: 28px;
+        }
+
+        .note {
+            border: 1px solid #e3e4e8;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+
+        .note h2 {
+            margin-top: 0;
+            font-size: 24px;
+            color: #0056b3;
+            font-weight: 600;
+        }
+
+        .note textarea {
+            width: 100%;
+            height: 120px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            resize: vertical;
+            box-sizing: border-box;
+            color: #333;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .note canvas {
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            background-color: #ffffff;
+            cursor: crosshair;
+            margin-top: 10px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .actions {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .actions button {
+            background-color: #cccccc;
+            color: #333333;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .actions button:hover {
+            background-color: #999999;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        #login-button, #logout-button, #new-note {
+            background-color: #cccccc;
+            color: #333333;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #login-button:hover, #logout-button:hover, #new-note:hover {
+            background-color: #999999;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        #search-container {
+            display: flex;               /* 讓搜尋框和按鈕在同一行 */
+            justify-content: flex-start; /* 讓它們在左邊對齊 */
+            align-items: center;         /* 垂直居中對齊 */
+            gap: 10px;                   /* 添加一個 10px 的間距 */
+            margin-bottom: 20px;         /* 與下面的內容保持間距 */
+        }
+
+        #search-input {
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+        }
+
+        #search-button {
+            background-color: #cccccc;
+            color: #333333;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #search-button:hover {
+            background-color: #999999;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .note-category {
+            margin-bottom: 12px;
+            font-size: 16px;
+            color: #0056b3;
+            font-weight: 600;
+        }
+
+        .canvas-tools,
+        .text-tools {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .canvas-tools input[type="color"],
+        .text-tools input[type="color"] {
+            width: 36px;
+            height: 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 0;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .canvas-tools select,
+        .text-tools select {
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            background-color: #ffffff;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .canvas-tools label,
+        .text-tools label {
+            font-size: 14px;
+            color: #0056b3;
+            font-weight: 600;
+        }
+        .editable-text {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            box-sizing: border-box;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+            color: #333;
+            overflow-wrap: break-word;
+            white-space: pre-wrap; /* 讓空白字符保持換行 */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>網頁筆記</h1>
+        <div class="header">
+            <button id="login-button">Google 登入</button>
+            <button id="new-note" style="display: none;">新增筆記</button>
+            <button id="logout-button" style="display: none;">登出</button>
+        </div>
+
+        <!-- 搜尋輸入框和按鈕 -->
+        <div id="search-container" style="display: none;">
+            <input type="text" id="search-input" placeholder="搜尋筆記標題或分類">
+            <button id="search-button">搜尋</button>
+        </div>
+
+        <div id="notes-container">
+            <!-- 筆記列表將顯示在這裡 -->
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore-compat.js"></script>
+    <script>
+        // Firebase 初始化
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEmo_Za0U52zNFBz-IikurtL0UWcco0sc",
+            authDomain: "project-f7999.firebaseapp.com",
+            databaseURL: "https://project-f7999-default-rtdb.firebaseio.com",
+            projectId: "project-f7999",
+            storageBucket: "project-f7999.firebasestorage.app",
+            messagingSenderId: "579656505169",
+            appId: "1:579656505169:web:29fc7a9ed5764e35a66570",
+            measurementId: "G-GP2NN9Y1D5"
+        };
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore(app);
+
+        const loginButton = document.getElementById('login-button');
+        const logoutButton = document.getElementById('logout-button');
+        const newNoteButton = document.getElementById('new-note');
+        const notesContainer = document.getElementById('notes-container');
+        const searchContainer = document.getElementById('search-container');
+
+        let currentUser = null;
+
+        // Google 登入
+        loginButton.addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then(result => {
+                    currentUser = result.user;
+                    toggleUI();
+                    // displayNotes();
+                })
+                .catch(error => {
+                    console.error('Google 登入失敗:', error);
+                });
+        });
+
+        // 登出
+        logoutButton.addEventListener('click', () => {
+            auth.signOut().then(() => {
+                currentUser = null;
+                toggleUI();
+            });
+        });
+
+        // 切換 UI 狀態
+        function toggleUI() {
+            if (currentUser) {
+                loginButton.style.display = 'none';
+                logoutButton.style.display = 'inline-block';
+                newNoteButton.style.display = 'inline-block';
+                searchContainer.style.display = 'flex';
+            } else {
+                loginButton.style.display = 'inline-block';
+                logoutButton.style.display = 'none';
+                newNoteButton.style.display = 'none';
+                searchContainer.style.display = 'none';
+                notesContainer.innerHTML = '';
+            }
+        }
+
+        // 新增筆記
+        newNoteButton.addEventListener('click', () => {
+            const category = prompt('輸入筆記分類:');
+            const title = prompt('輸入標題:');
+            if (title && category && currentUser) {
+                db.collection('Users').doc(currentUser.uid).collection('Notes').add({
+                    category: category,
+                    title: title,
+                    content: '',
+                    canvasData: '',
+                    textColor: '#000000',
+                    brushSize: 5,
+                    timestamp: new Date()
+                }).then(() => {
+                    displayNotes();
+                }).catch(error => {
+                    console.error('新增筆記時出錯:', error);
+                });
+            }
+        });
+
+        // 顯示筆記
+        async function displayNotes() {
+            if (!currentUser) return;
+
+            // 清空筆記容器，避免重複顯示
+            notesContainer.innerHTML = '';
+
+            const notesSnapshot = await db.collection('Users').doc(currentUser.uid).collection('Notes').orderBy('timestamp', 'desc').get();
+            notesSnapshot.forEach(doc => {
+                const note = doc.data();
+                createNoteElement(doc.id, note);
+            });
+        }
+
+        // 搜尋筆記
+        const searchButton = document.getElementById('search-button');
+        searchButton.addEventListener('click', searchNotes);
+
+        function searchNotes() {
+            const searchTerm = document.getElementById('search-input').value.trim().toLowerCase();
+            if (searchTerm === '') {
+                displayNotes();
+                return;
+            }
+
+            db.collection('Users').doc(currentUser.uid).collection('Notes').get()
+                .then(querySnapshot => {
+                    notesContainer.innerHTML = '';
+                    querySnapshot.forEach(doc => {
+                        const note = doc.data();
+                        const titleMatches = note.title && note.title.toLowerCase().includes(searchTerm);
+                        const categoryMatches = note.category && note.category.toLowerCase().includes(searchTerm);
+                        if (titleMatches || categoryMatches) {
+                            createNoteElement(doc.id, note);
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('搜尋筆記時出錯:', error);
+                });
+        }
+
+        // 建立筆記元素
+        function createNoteElement(id, note) {
+            const noteElement = document.createElement('div');
+            noteElement.className = 'note';
+            noteElement.innerHTML = `
+               <div class="note-category"><strong>分類:</strong> ${note.category}</div>
+                <h2>${note.title}</h2>
+                <div id="text-content-${id}" contenteditable="true" class="editable-text" style="color: ${note.textColor};">${note.content}</div>
+                <div class="text-tools">
+                    <label for="text-color-picker-${id}">文字顏色:</label>
+                    <input type="color" id="text-color-picker-${id}" value="${note.textColor}">
+                    <button id="apply-text-color-${id}">變更顏色</button>
+                </div>
+                <input type="file" id="upload-image-${id}" accept="image/*">
+                <img id="uploaded-image-${id}" style="display:none; max-width: 100%; height: auto;">
+                <canvas id="canvas-${id}" width="600" height="400"></canvas>
+                <div class="canvas-tools">
+                    <label for="color-picker-${id}">畫筆顏色:</label>
+                    <input type="color" id="color-picker-${id}" value="#000000">
+                    <label for="brush-size-${id}">畫筆粗細:</label>
+                    <select id="brush-size-${id}">
+                        <option value="2">2px</option>
+                        <option value="5">5px</option>
+                        <option value="10">10px</option>
+                        <option value="15">15px</option>
+                        <option value="20">20px</option>
+                    </select>
+                    <button id="brush-${id}">畫筆</button>
+                    <button id="eraser-${id}">橡皮擦</button>
+                    <button id="clear-canvas-${id}">清除畫布</button>
+                </div>
+                <div class="actions">
+                    <button onclick="editNote('${id}')">編輯</button>
+                    <button onclick="deleteNote('${id}')">刪除</button>
+                    <button id="save-note-${id}">儲存內容</button>
+                </div>
+            `;
+            notesContainer.appendChild(noteElement);
+
+            // 繪圖和編輯功能
+            const canvas = document.getElementById(`canvas-${id}`);
+            const ctx = canvas.getContext('2d');
+            let drawing = false;
+            let erasing = false;
+            let currentColor = '#000000';
+            let brushSize = note.brushSize || 5;
+
+            canvas.addEventListener('mousedown', () => { drawing = true; });
+            canvas.addEventListener('mouseup', () => { drawing = false; ctx.beginPath(); });
+            canvas.addEventListener('mousemove', (event) => draw(event, ctx, drawing, erasing, currentColor, brushSize));
+
+            document.getElementById(`color-picker-${id}`).addEventListener('input', (event) => {
+                currentColor = event.target.value;
+                erasing = false;
+            });
+
+            document.getElementById(`brush-size-${id}`).addEventListener('change', (event) => {
+                brushSize = event.target.value;
+            });
+
+            document.getElementById(`eraser-${id}`).addEventListener('click', () => {
+                erasing = true;
+            });
+
+            document.getElementById(`clear-canvas-${id}`).addEventListener('click', () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            });
+
+            document.getElementById(`brush-${id}`).addEventListener('click', () => {
+                erasing = false;
+            });
+
+            document.getElementById(`save-note-${id}`).addEventListener('click', async () => {
+                const textContent = document.getElementById(`text-content-${id}`).innerHTML;
+                const imageSrc = document.getElementById(`uploaded-image-${id}`).src; // 獲取圖片的 dataURL
+
+                await saveCanvasDataToDatabase(id, canvas);
+                await db.collection('Users').doc(currentUser.uid).collection('Notes').doc(id).update({
+                    content: textContent,
+                    textColor: textColorPicker.innerHTML,
+                    imageSrc: imageSrc, // 儲存圖片的 dataURL
+                    brushSize: brushSize
+                });
+            });
+
+            // 載入保存的畫布
+            if (note.canvasData) {
+                const img = new Image();
+                img.src = note.canvasData;
+                img.onload = () => {
+                    ctx.drawImage(img, 0, 0);
+                };
+            }
+
+            // 載入保存的圖片
+            if (note.imageSrc) {
+                const uploadedImage = document.getElementById(`uploaded-image-${id}`);
+                uploadedImage.src = note.imageSrc;  // 將圖片的 dataURL 設置為 <img> 的 src
+                uploadedImage.style.display = 'block';  // 確保圖片顯示
+            }
+
+            // 文字顏色選擇
+            const textContent = document.getElementById(`text-content-${id}`);
+            const textColorPicker = document.getElementById(`text-color-picker-${id}`);
+            const applyTextColorButton = document.getElementById(`apply-text-color-${id}`);
+
+            applyTextColorButton.addEventListener('click', () => {
+                const newColor = textColorPicker.value;
+                const selection = window.getSelection();
+                if (selection.rangeCount > 0 && selection.toString()) {
+                    const range = selection.getRangeAt(0);
+                    const span = document.createElement('span');
+                    span.style.color = newColor;
+                    range.surroundContents(span);
+                } else {
+                    alert('請先選取文字');
+                }
+            });
+
+            // 處理圖片上傳
+            document.getElementById(`upload-image-${id}`).addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const uploadedImage = document.getElementById(`uploaded-image-${id}`);
+                        uploadedImage.src = e.target.result; // 設置圖片的 src 為 dataURL
+                        uploadedImage.style.display = 'block'; // 顯示圖片
+
+                        // 儲存圖片資料到資料庫
+                        const dataURL = reader.result;
+                        saveImageToDatabase(id, dataURL);
+                    };
+                    reader.readAsDataURL(file); // 讀取圖片為 dataURL
+                }
+            });
+        }
+
+        // 繪圖功能
+        function draw(event, ctx, drawing, erasing, color, size) {
+            if (!drawing) return;
+
+            ctx.lineWidth = size;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = erasing ? '#ffffff' : color;
+
+            ctx.lineTo(event.offsetX, event.offsetY);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(event.offsetX, event.offsetY);
+        }
+
+        // 儲存圖片資料到資料庫
+        async function saveImageToDatabase(id, dataURL) {
+            await db.collection('Users').doc(currentUser.uid).collection('Notes').doc(id).update({
+                imageSrc: dataURL // 儲存圖片的 dataURL
+            });
+        }
+
+        // 儲存畫布內容至資料庫
+        async function saveCanvasDataToDatabase(id, canvas) {
+            const dataURL = canvas.toDataURL(); // 取得畫布的dataURL
+            await db.collection('Users').doc(currentUser.uid).collection('Notes').doc(id).update({
+                canvasData: dataURL // 儲存畫布的dataURL
+            });
+        }
+
+        // 編輯筆記
+        async function editNote(noteId) {
+            const noteRef = db.collection('Users').doc(currentUser.uid).collection('Notes').doc(noteId);
+            const noteDoc = await noteRef.get();
+            if (noteDoc.exists) {
+                const note = noteDoc.data();
+                const newCategory = prompt('修改分類:', note.category);
+                const newTitle = prompt('修改標題:', note.title);
+                if (newCategory !== null && newTitle !== null) {
+                    noteRef.update({
+                        category: newCategory,
+                        title: newTitle
+                    }).then(() => {
+                        displayNotes();
+                    }).catch(error => {
+                        console.error('更新筆記時出錯:', error);
+                    });
+                }
+            }
+        }
+
+        // 刪除筆記
+        function deleteNote(noteId) {
+            if (confirm('確定要刪除這個筆記嗎?')) {
+                db.collection('Users').doc(currentUser.uid).collection('Notes').doc(noteId).delete()
+                    .then(() => {
+                        displayNotes();
+                    })
+                    .catch(error => {
+                        console.error('刪除筆記時出錯:', error);
+                    });
+            }
+        }
+
+        // 監聽使用者登入狀態
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                toggleUI();
+                displayNotes(); // 只呼叫一次顯示筆記
+            } else {
+                currentUser = null;
+                toggleUI();
+            }
+        });
+
+        // displayNotes(); // 初始加載筆記列表
+    </script>
+</body>
+
+</html>
