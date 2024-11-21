@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登入</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #a8c0ff, #3375cb);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        h1 {
+            color: #0056b3;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: #cccccc;
+            color: #333333;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #999999;
+        }
+
+        .error-message {
+            color: #ff0000;
+            margin-top: 10px;
+        }
+
+        .login-container {
+            background-image: url('cloud.png');
+            background-size: cover;
+            background-position: center -100px;
+            border-radius: 10px;
+            padding: 150px;
+            max-width: 300px;
+            width: 100%;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <h1>網頁筆記</h1>
+        <div id="google-login" style="margin-top: 20px;">
+            <button id="google-login-button">連接 Google 登入</button>
+        </div>
+        <div class="error-message" id="error-message"></div>
+    </div>
+
+    <!-- 引入 Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js"></script>
+
+    <script type="module">
+        // Firebase 初始化
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEmo_Za0U52zNFBz-IikurtL0UWcco0sc",
+            authDomain: "project-f7999.firebaseapp.com",
+            projectId: "project-f7999",
+            storageBucket: "project-f7999.appspot.com",
+            messagingSenderId: "579656505169",
+            appId: "1:579656505169:web:29fc7a9ed5764e35a66570",
+            measurementId: "G-GP2NN9Y1D5"
+        };
+
+        // 初始化 Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Google 登入按鈕
+        const googleLoginButton = document.getElementById('google-login-button');
+        googleLoginButton.addEventListener('click', async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                // 使用 Google 登入
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                console.log('登入成功:', user);
+
+                // 寫入 Firestore
+                const userRef = doc(db, 'users', user.uid);
+                const docSnap = await getDoc(userRef);
+
+                if (!docSnap.exists()) {
+                    await setDoc(userRef, {
+                        email: user.email,
+                        uid: user.uid,
+                        createdAt: serverTimestamp()
+                    });
+                    console.log("使用者資料已成功存入 Firestore");
+                }
+
+                // 跳轉到專屬的筆記頁面
+                window.location.href = `notes.html?uid=${user.uid}`;
+            } catch (error) {
+                console.error('Google 登入錯誤:', error);
+                const errorMessage = document.getElementById('error-message');
+                errorMessage.textContent = `Google 登入失敗：${error.message}`;
+            }
+        });
+    </script>
+</body>
+
+</html>
